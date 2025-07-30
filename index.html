@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CHD Risk Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #f3f4f6, #e0f7fa);
+            display: flex;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        .container {
+            width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px 30px 40px;
+            text-align: center;
+        }
+
+        .container img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .btns {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .accuracy {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        .slide-count {
+            margin-top: 10px;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Heart Image">
+
+    <form action="/predict" method="post" id="chdForm">
+        <div class="step active"><h3>1. Gender (0 = Female, 1 = Male)</h3><input type="number" name="male" required></div>
+        <div class="step"><h3>2. Age</h3><input type="number" name="age" required></div>
+        <div class="step"><h3>3. Education Level (1 to 4)</h3><input type="number" name="education" required></div>
+        <div class="step"><h3>4. Current Smoker? (0 = No, 1 = Yes)</h3><input type="number" name="currentSmoker" required></div>
+        <div class="step"><h3>5. Cigarettes Per Day</h3><input type="number" name="cigsPerDay" required></div>
+        <div class="step"><h3>6. On BP Medication? (0 = No, 1 = Yes)</h3><input type="number" name="BPMeds" required></div>
+        <div class="step"><h3>7. Prevalent Stroke? (0 = No, 1 = Yes)</h3><input type="number" name="prevalentStroke" required></div>
+        <div class="step"><h3>8. Prevalent Hypertension? (0 = No, 1 = Yes)</h3><input type="number" name="prevalentHyp" required></div>
+        <div class="step"><h3>9. Diabetes? (0 = No, 1 = Yes)</h3><input type="number" name="diabetes" required></div>
+        <div class="step"><h3>10. Total Cholesterol</h3><input type="number" name="totChol" required></div>
+        <div class="step"><h3>11. Systolic BP</h3><input type="number" name="sysBP" required></div>
+        <div class="step"><h3>12. Diastolic BP</h3><input type="number" name="diaBP" required></div>
+        <div class="step"><h3>13. Body Mass Index (BMI)</h3><input type="number" name="BMI" step="0.1" required></div>
+        <div class="step"><h3>14. Heart Rate</h3><input type="number" name="heartRate" required></div>
+        <div class="step"><h3>15. Glucose</h3><input type="number" name="glucose" required></div>
+
+        <div class="slide-count" id="slideCounter">Step 1 of 15</div>
+
+        <div class="btns">
+            <button type="button" id="prevBtn">Previous</button>
+            <button type="button" id="nextBtn">Next</button>
+            <button type="submit" id="submitBtn" style="display:none;">Predict</button>
+        </div>
+    </form>
+
+    <div class="result">
+        {% if prediction_text %}
+            <p>{{ prediction_text }}</p>
+        {% endif %}
+        {% if accuracy %}
+            <div class="accuracy">Model Accuracy: {{ accuracy }}%</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const slideCounter = document.getElementById("slideCounter");
+
+    function showStep(step) {
+        steps.forEach((s, i) => s.classList.toggle("active", i === step));
+        prevBtn.style.display = step === 0 ? "none" : "inline-block";
+        nextBtn.style.display = step === steps.length - 1 ? "none" : "inline-block";
+        submitBtn.style.display = step === steps.length - 1 ? "inline-block" : "none";
+        slideCounter.textContent = `Step ${step + 1} of ${steps.length}`;
+    }
+
+    nextBtn.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    });
+
+    prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+
+    showStep(currentStep);
+</script>
+
+</body>
+</html>
