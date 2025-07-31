@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CHD Risk Prediction</title>
+    <title>Heart Disease Prediction</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -11,7 +11,6 @@
             justify-content: center;
             padding: 50px;
         }
-
         .container {
             width: 450px;
             background-color: white;
@@ -20,20 +19,16 @@
             padding: 30px 30px 40px;
             text-align: center;
         }
-
         .container img {
             width: 100px;
             margin-bottom: 20px;
         }
-
         .step {
             display: none;
         }
-
         .step.active {
             display: block;
         }
-
         input[type="number"] {
             width: 100%;
             padding: 10px;
@@ -42,13 +37,11 @@
             border-radius: 10px;
             font-size: 16px;
         }
-
         .btns {
             margin-top: 25px;
             display: flex;
             justify-content: space-between;
         }
-
         button {
             padding: 10px 25px;
             background-color: #007bff;
@@ -58,30 +51,25 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         h3 {
             font-size: 18px;
             color: #333;
             margin-bottom: 10px;
         }
-
         .result {
             margin-top: 30px;
             font-size: 18px;
             color: #007bff;
             font-weight: bold;
         }
-
         .accuracy {
             font-size: 14px;
             margin-top: 10px;
             color: #555;
         }
-
         .slide-count {
             margin-top: 10px;
             color: #777;
@@ -90,10 +78,8 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Heart Image">
-
     <form action="/predict" method="post" id="chdForm">
         <div class="step active"><h3>1. Gender (0 = Female, 1 = Male)</h3><input type="number" name="male" required></div>
         <div class="step"><h3>2. Age</h3><input type="number" name="age" required></div>
@@ -110,16 +96,13 @@
         <div class="step"><h3>13. Body Mass Index (BMI)</h3><input type="number" name="BMI" step="0.1" required></div>
         <div class="step"><h3>14. Heart Rate</h3><input type="number" name="heartRate" required></div>
         <div class="step"><h3>15. Glucose</h3><input type="number" name="glucose" required></div>
-
         <div class="slide-count" id="slideCounter">Step 1 of 15</div>
-
         <div class="btns">
             <button type="button" id="prevBtn">Previous</button>
             <button type="button" id="nextBtn">Next</button>
             <button type="submit" id="submitBtn" style="display:none;">Predict</button>
         </div>
     </form>
-
     <div class="result">
         {% if prediction_text %}
             <p>{{ prediction_text }}</p>
@@ -129,7 +112,6 @@
         {% endif %}
     </div>
 </div>
-
 <script>
     let currentStep = 0;
     const steps = document.querySelectorAll(".step");
@@ -162,6 +144,5 @@
 
     showStep(currentStep);
 </script>
-
 </body>
 </html>
