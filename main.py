@@ -1,35 +1,55 @@
-from flask import Flask, render_template, request
+# main.py
+
 import pandas as pd
 import joblib
 import os
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-# Load the trained model
-model = joblib.load("chd_model.pkl")
+class CHDPredictor:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.df = None
+        self.cleaned_df = None
+        self.model = LogisticRegression(max_iter=1000)
 
-# Use environment variable or fallback default
-accuracy = float(os.getenv("MODEL_ACCURACY", 0.84))  # 84% default
+    def load_data(self):
+        self.df = pd.read_csv(self.file_path)
+        print("✅ Data loaded")
 
-app = Flask(__name__)
+    def clean_data(self):
+        self.cleaned_df = self.df.dropna()
+        print(f"✅ Cleaned data: {self.cleaned_df.shape[0]} rows remaining")
 
-@app.route('/')
-def home():
-    return render_template('index.html', accuracy=round(accuracy * 100, 2))
+    def split_data(self):
+        x = self.cleaned_df.iloc[:, :-1]
+        y = self.cleaned_df.iloc[:, -1]
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            x, y, test_size=0.2, random_state=42)
+        print("✅ Data split into train and test sets")
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        features = [float(request.form[key]) for key in request.form]
-        df = pd.DataFrame([features], columns=[
-            'male', 'age', 'education', 'currentSmoker', 'cigsPerDay',
-            'BPMeds', 'prevalentStroke', 'prevalentHyp', 'diabetes',
-            'totChol', 'sysBP', 'diaBP', 'BMI', 'heartRate', 'glucose'
-        ])
-        prediction = model.predict(df)[0]
-        result = "🔴 High risk of CHD in 10 years" if prediction == 1 else "🟢 Low risk of CHD in 10 years"
-        return render_template('index.html', prediction_text=result, accuracy=round(accuracy * 100, 2))
-    except Exception as e:
-        return render_template('index.html', prediction_text=f"Error: {str(e)}", accuracy=round(accuracy * 100, 2))
+    def train_model(self):
+        self.model.fit(self.X_train, self.y_train)
+        print("✅ Model trained")
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    def evaluate_model(self):
+        y_pred = self.model.predict(self.X_test)
+        print("\n📊 Model Evaluation:")
+        print("Accuracy: {:.2f}%".format(accuracy_score(self.y_test, y_pred) * 100))
+        print("Confusion Matrix:\n", confusion_matrix(self.y_test, y_pred))
+        print("Classification Report:\n", classification_report(self.y_test, y_pred))
+
+    def save_model(self, filename='chd_model.pkl'):
+        joblib.dump(self.model, filename)
+        print(f"✅ Model saved to {filename}")
+
+
+if __name__ == "__main__":
+    predictor = CHDPredictor("framingham.csv")  # <-- Make sure the CSV is in the same folder
+    predictor.load_data()
+    predictor.clean_data()
+    predictor.split_data()
+    predictor.train_model()
+    predictor.evaluate_model()
+    predictor.save_model()
